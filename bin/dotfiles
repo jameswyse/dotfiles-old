@@ -1,0 +1,30 @@
+#!/bin/sh
+
+dotfiles_help() {
+  echo "Dotfiles Helper\n"
+  echo "Usage:"
+  echo "    dotfiles help           Show this message"
+  echo "    dotfiles install        Install dotfiles"
+  echo "    dotfiles uninstall      Uninstall dotfiles"
+}
+
+dotfiles_install() {
+  echo "installing dotfiles"
+}
+
+dotfiles_uninstall() {
+  echo "uninstalling dotfiles"
+}
+
+if [[ "$1" == "" ]]; then
+  dotfiles_cmd="help"
+else
+  dotfiles_cmd=$1
+fi
+
+case $dotfiles_cmd in
+  "install")     dotfiles_install              ;;
+  "uninstall")   dotfiles_uninstall            ;;
+  "help")        dotfiles_help                 ;;
+  *)             echo "Invalid Command: $dotfiles_cmd"    ;;
+esac
