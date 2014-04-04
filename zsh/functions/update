@@ -1,0 +1,11 @@
+# ------------------------------------------------------------------------------
+# Update all the things
+# ------------------------------------------------------------------------------
+update() {
+    local osx="softwareupdate -iva"
+    local brew="brew update; brew upgrade"
+    local gisty="gisty pull_all; gisty sync_delete"
+    local gem="gem update"
+    local pip="pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U -q"
+    sudo sh -c $osx; $brew; $gisty; sudo sh -c $gem; $pip
+}
