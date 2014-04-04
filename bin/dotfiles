@@ -1,19 +1,43 @@
 #!/bin/sh
 
 set -e
-
 echo ''
 
+# ------------------------------------------------------------------------------
+# Execute the correct command
+# ------------------------------------------------------------------------------
+exec_command () {
+  if [[ "$1" == "" ]]; then
+    dotfiles_cmd="help"
+  else
+    dotfiles_cmd=$1
+  fi
+
+  case $dotfiles_cmd in
+    "install")     dotfiles_install              ;;
+    "uninstall")   dotfiles_uninstall            ;;
+    "help")        dotfiles_help                 ;;
+    *)             echo "Invalid Command: $dotfiles_cmd"    ;;
+  esac
+}
+
+# ------------------------------------------------------------------------------
+# Message output functions
+# ------------------------------------------------------------------------------
 info () {
   printf "  [ \033[00;34m..\033[0m ] $1"
 }
 
+warn () {
+  printf "  [ \033[0;31m!!\033[0m ] $1"
+}
+
 user () {
-  printf "\r  [ \033[0;33m?\033[0m ] $1 "
+  printf "\r  [ \033[0;33m??\033[0m ] $1 "
 }
 
 success () {
-  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1"
 }
 
 fail () {
@@ -22,7 +46,10 @@ fail () {
   exit
 }
 
-dotfiles_help() {
+# ------------------------------------------------------------------------------
+# Show help
+# ------------------------------------------------------------------------------
+dotfiles_help () {
   echo "Dotfiles Helper\n"
   echo "Usage:"
   echo "    dotfiles help           Show this message"
@@ -30,19 +57,59 @@ dotfiles_help() {
   echo "    dotfiles uninstall      Uninstall dotfiles"
 }
 
-dotfiles_install() {
-  echo "installing dotfiles"
+# ------------------------------------------------------------------------------
+# Install
+# ------------------------------------------------------------------------------
+dotfiles_install () {
   setup_gitconfig
+  setup_symlinks
+  setup_software
 }
 
-dotfiles_uninstall() {
+# ------------------------------------------------------------------------------
+# Uninstall
+# ------------------------------------------------------------------------------
+dotfiles_uninstall () {
   echo "uninstalling dotfiles"
 }
 
+# ------------------------------------------------------------------------------
+# Creates a symlink
+# ------------------------------------------------------------------------------
+link_files () {
+  ln -s $1 $2
+  success "linked \033[0;31m$1\033[0m to \033[0;31m$2\033[0m\n"
+}
+
+# ------------------------------------------------------------------------------
+# Installs dependencies and software
+# ------------------------------------------------------------------------------
+setup_software () {
+  if [ "$(uname -s)" == "Darwin" ]
+  then
+    info "Installing Software\n\n"
+    $DOTFILES/osx/software.sh
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# Apply settings
+# ------------------------------------------------------------------------------
+setup_settings () {
+  if [ "$(uname -s)" == "Darwin" ]
+  then
+    info "Applying Settings\n"
+    $DOTFILES/osx/settings.sh
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# Setup gitconfig.symlink using gitconfig.example
+# ------------------------------------------------------------------------------
 setup_gitconfig () {
   if ! [ -f $DOTFILES/git/gitconfig.symlink ]
   then
-    info 'setup gitconfig'
+    info 'Setting up .gitconfig\n'
 
     git_credential='cache'
     if [ "$(uname -s)" == "Darwin" ]
@@ -50,9 +117,9 @@ setup_gitconfig () {
       git_credential='osxkeychain'
     fi
 
-    user ' - What is your github author name?'
+    user 'What is your github author name?'
     read -e git_authorname
-    user ' - What is your github author email?'
+    user 'What is your github author email?'
     read -e git_authoremail
 
     sed -e "s/_NAME_/$git_authorname/g" -e "s/_EMAIL_/$git_authoremail/g" -e "s/_HELPER_/$git_credential/g" $DOTFILES/git/gitconfig.example > $DOTFILES/git/gitconfig.symlink
@@ -61,16 +128,75 @@ setup_gitconfig () {
   fi
 }
 
+# ------------------------------------------------------------------------------
+# Creates symbolic links for every .symlink file in the $HOME directory
+# ------------------------------------------------------------------------------
+setup_symlinks () {
+  info "Linking dotfiles\n"
 
-if [[ "$1" == "" ]]; then
-  dotfiles_cmd="help"
-else
-  dotfiles_cmd=$1
-fi
+  overwrite_all=false
+  backup_all=false
+  skip_all=false
 
-case $dotfiles_cmd in
-  "install")     dotfiles_install              ;;
-  "uninstall")   dotfiles_uninstall            ;;
-  "help")        dotfiles_help                 ;;
-  *)             echo "Invalid Command: $dotfiles_cmd"    ;;
-esac
+  for source in `find -L $DOTFILES -maxdepth 2 -name \*.symlink`
+  do
+    dest="$HOME/.`basename \"${source%.*}\"`"
+
+    if [ -f $dest ] || [ -d $dest ]
+    then
+
+      overwrite=false
+      backup=false
+      skip=false
+
+      if [ "$overwrite_all" == "false" ] && [ "$backup_all" == "false" ] && [ "$skip_all" == "false" ]
+      then
+        warn "File already exists: \033[0;31m`basename $source`\033[0m\n"
+        user "What do you want to do? [\033[0;33ms\033[0m]kip, [\033[0;33mS\033[0m]kip all, [\033[0;33mo\033[0m]verwrite, [\033[0;33mO\033[0m]verwrite all, [\033[0;33mb\033[0m]ackup, [\033[0;33mB\033[0m]ackup all?"
+        read -n 1 action
+
+        case "$action" in
+          o )
+            overwrite=true;;
+          O )
+            overwrite_all=true;;
+          b )
+            backup=true;;
+          B )
+            backup_all=true;;
+          s )
+            skip=true;;
+          S )
+            skip_all=true;;
+          * )
+            ;;
+        esac
+      fi
+
+      if [ "$overwrite" == "true" ] || [ "$overwrite_all" == "true" ]
+      then
+        rm -rf $dest
+        success "Removed \033[0;31m$dest\033[0m\n"
+      fi
+
+      if [ "$backup" == "true" ] || [ "$backup_all" == "true" ]
+      then
+        mv $dest $dest\.backup
+        success "Moved \033[0;31m$dest\033[0m to \033[0;31m$dest.backup\033[0m\n"
+      fi
+
+      if [ "$skip" == "false" ] && [ "$skip_all" == "false" ]
+      then
+        link_files $source $dest
+      else
+        success "Skipped \033[0;31m$source\033[0m\n"
+      fi
+
+    else
+      link_files $source $dest
+    fi
+
+  done
+}
+
+exec_command "$1"
