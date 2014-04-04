@@ -1,0 +1,47 @@
+[hub]
+  protocol = https
+[core]
+  editor = nano
+  excludesfile = /Users/james/.gitignore
+  autocrlf = input
+[alias]
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%an, %cr)%Creset' --abbrev-commit --date=relative
+  lga = log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%an, %cr)%Creset' --abbrev-commit --date=relative
+  hist = !sh -c "git log --graph --pretty=format:\"%C(yellow)%h%Creset%C(blue)%d%Creset %C(white bold)%s%Creset %C(white dim)(by %an %ar)%Creset\" --all"
+  co = checkout
+  promote = !$ZSH/bin/git-promote
+  wtf     = !$ZSH/bin/git-wtf
+  rank-contributers = !$ZSH/bin/git-rank-contributers
+  count   = !git shortlog -sn
+  assume   = update-index --assume-unchanged
+  unassume = update-index --no-assume-unchanged
+  assumed  = "!git ls-files -v | grep ^h | cut -c 3-"
+  yolo = !sh -c 'git commit -am "`curl -s http://whatthecommit.com/index.txt`"'
+[help]
+  autocorrect = 1
+[web]
+  browser = chrome
+[browser "chrome"]
+  cmd = open -a "Google Chrome.app"
+[push]
+  default = simple
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+  ui = true
+[include]
+  # Secrets
+  path = ~/.gitconfig.local
+[user]
+  name = James Wyse
+  email = james@jameswyse.net
+[difftool "sourcetree"]
+  cmd = opendiff "$LOCAL" "$REMOTE"
+  path =
+[mergetool "sourcetree"]
+  cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh "$LOCAL" "$REMOTE" -ancestor "$BASE" -merge "$MERGED"
+  trustExitCode = true
+[filter "media"]
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f

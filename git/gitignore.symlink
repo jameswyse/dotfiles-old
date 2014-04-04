@@ -1,0 +1,17 @@
+.DS_Store
+.svn
+*~
+*.swp
+*.rbc
+Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
+.directory
+*.esproj
+*.sublime-*
+*.tmproj
+*.tmproject
+tmtags
+node_modules
+dump.rdb
