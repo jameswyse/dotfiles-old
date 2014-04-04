@@ -1,5 +1,27 @@
 #!/bin/sh
 
+set -e
+
+echo ''
+
+info () {
+  printf "  [ \033[00;34m..\033[0m ] $1"
+}
+
+user () {
+  printf "\r  [ \033[0;33m?\033[0m ] $1 "
+}
+
+success () {
+  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+}
+
+fail () {
+  printf "\r\033[2K  [\033[0;31mFAIL\033[0m] $1\n"
+  echo ''
+  exit
+}
+
 dotfiles_help() {
   echo "Dotfiles Helper\n"
   echo "Usage:"
@@ -10,11 +32,35 @@ dotfiles_help() {
 
 dotfiles_install() {
   echo "installing dotfiles"
+  setup_gitconfig
 }
 
 dotfiles_uninstall() {
   echo "uninstalling dotfiles"
 }
+
+setup_gitconfig () {
+  if ! [ -f $DOTFILES/git/gitconfig.symlink ]
+  then
+    info 'setup gitconfig'
+
+    git_credential='cache'
+    if [ "$(uname -s)" == "Darwin" ]
+    then
+      git_credential='osxkeychain'
+    fi
+
+    user ' - What is your github author name?'
+    read -e git_authorname
+    user ' - What is your github author email?'
+    read -e git_authoremail
+
+    sed -e "s/_NAME_/$git_authorname/g" -e "s/_EMAIL_/$git_authoremail/g" -e "s/_HELPER_/$git_credential/g" $DOTFILES/git/gitconfig.example > $DOTFILES/git/gitconfig.symlink
+
+    success 'gitconfig'
+  fi
+}
+
 
 if [[ "$1" == "" ]]; then
   dotfiles_cmd="help"
