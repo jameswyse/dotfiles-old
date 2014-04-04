@@ -14,8 +14,9 @@
 #   $ e /usr/local
 #   # => opens the specified directory in your editor
 
+EDITOR_APP=${GUIEDITOR:=$EDITOR}
 if [ "$1" == "" ] ; then
-  exec $EDITOR .
+  exec $EDITOR_APP .
 else
-  exec $EDITOR "$1"
+  exec $EDITOR_APP "$1"
 fi

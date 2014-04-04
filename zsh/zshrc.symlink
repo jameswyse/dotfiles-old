@@ -8,8 +8,11 @@ export DOTFILES=$HOME/.dotfiles
 # Project folder - used by the `c` command
 export PROJECTS=$HOME/Projects
 
-# Editor - used by the `e` command
-export EDITOR=atom
+# CLI Editor
+export EDITOR=nano
+
+# GUI Editor - used by the `e` command
+export GUIEDITOR=atom
 
 # ------------------------------------------------------------------------------
 # ZSH Settings
