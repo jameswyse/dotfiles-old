@@ -8,7 +8,7 @@ path=(. ./bin /usr/local/bin /usr/local/sbin $HOME/.rbenv/shims $DOTFILES/bin $p
 # MANPATH
 # ------------------------------------------------------------------------------
 typeset -U manpath
-manpath=(/usr/local/man /usr/local/mysql/man /usr/local/git/man $manpath)
+manpath=(/usr/local/man /usr/local/mysql/man /usr/local/git/man /usr/share/man $manpath)
 
 # ------------------------------------------------------------------------------
 # FPATH
