@@ -8,6 +8,9 @@ source $DOTFILES/zsh/antigen.zsh
 # Set Paths
 source $DOTFILES/zsh/path.zsh
 
+# Load Aliases
+source $DOTFILES/zsh/aliases.zsh
+
 # Load functions
 autoload -U $DOTFILES/zsh/functions/*(:t)
 
