@@ -1,0 +1,17 @@
+# ------------------------------------------------------------------------------
+# Change directory to the current Finder directory
+# ------------------------------------------------------------------------------
+#
+# Known problems:
+#
+# The prompt incorrectly reports the PWD as "~target" for folders with spaces
+# Related: http://superuser.com/questions/584325/putting-the-canonical-working-directory-in-a-zsh-prompt-on-os-x-iterm-2-if-t
+#
+cdf() {
+    target=`osascript -e 'tell application "Finder" to if (count of Finder windows) > 0 then get POSIX path of (target of front Finder window as text)'`
+    if [ "$target" != "" ]; then
+        cd "$target"
+    else
+        echo 'No Finder window found' >&2
+    fi
+}
