@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if [ "$1" == "" ] ; then
+  exec /Applications/ImageOptim.app/Contents/MacOS/ImageOptim .
+else
+  exec /Applications/ImageOptim.app/Contents/MacOS/ImageOptim "$1"
+fi
