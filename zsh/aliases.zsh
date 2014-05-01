@@ -59,4 +59,4 @@ alias ping="ping -c 5"
 alias pubkey="more ~/.ssh/id_rsa.public | pbcopy | echo '=> Public key copied to pasteboard.'"
 
 # set strongest compression level for gzip
-alias gzip="gzip -9n" 
+alias gzip="gzip -9n"
